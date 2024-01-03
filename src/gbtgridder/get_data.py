@@ -174,6 +174,23 @@ def get_data(
     freq = (crv1[0] + cd1[0] * (indx - crp1[0])) * doppler[0]
     result["freq"] = freq
 
+    # Assume all the spectral axes are of the same type.
+    ctype1 = thisTabData[0].field("ctype1")
+    # FITS convention is to have CTYPEka as a four letter code,
+    # unless a non-linear transform is used.
+    if len(ctype1) > 4:
+        ctype1 = ctype1[:4]
+    result["ctype1"] = ctype1
+    # Try to get the units.
+    cunit1Dict = {"FREQ": "Hz",
+                  "VELO": "m/s",
+                 }
+    try:
+        cunit1 = thisTabData[0].field("cunit1")
+    except KeyError:
+        cunit1 = cunit1Dict[ctype1]
+    result["cunit1"] = cunit1
+
     if getdata:
         # chan selection happens here
         result["data"] = thisTabData.field("data")[:, chanStart : (chanStop + 1)]
@@ -216,7 +233,7 @@ def get_data(
             result["ntsysflag"] += nMaxFlagged
             result["wt"][tsysMask] = 0.0
 
-    result["restfreq"] = frest[0]
+    result["restfreq"] = thisTabData[0].field("restfreq") #frest[0]
     result["doppler"] = doppler
     # bandwidth in sky frame of selected channels, from the first row
     result["bandwidth"] = abs(cd1[0]) * len(indx)

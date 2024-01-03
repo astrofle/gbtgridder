@@ -258,6 +258,8 @@ def gbtgridder(args):
     calibType = None
     veldef = None
     specsys = None
+    specunit = None
+    spectype = None
     coordType = (None, None)
     radesys = None
     equinox = None
@@ -310,6 +312,8 @@ def gbtgridder(args):
                 calibType = dataRecord["calibtype"]
                 veldef = dataRecord["veldef"]
                 specsys = dataRecord["specsys"]
+                specunit = dataRecord["cunit1"]
+                spectype = dataRecord["ctype1"]
                 coordType = (dataRecord["xctype"], dataRecord["yctype"])
                 radesys = dataRecord["radesys"]
                 equinox = dataRecord["equinox"]
@@ -709,6 +713,8 @@ def gbtgridder(args):
         beam_fwhm,
         veldef,
         specsys,
+        spectype,
+        specunit,
         proj=args.proj,
         verbose=verbose,
     )

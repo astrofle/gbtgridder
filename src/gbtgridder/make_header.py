@@ -40,6 +40,8 @@ def make_header(
     beam_fwhm,
     veldef,
     specsys,
+    spectype,
+    specunit,
     proj="SFL",
     verbose=4,
 ):
@@ -72,8 +74,8 @@ def make_header(
     # MAKE THE VELOCITY AXIS (ALONG THE THIRD DIMENSION)
     # the frame is now indicated via SPECSYS.  Check on any other
     # needed WCS keywords for use here.
-    hdr["CTYPE3"] = "FREQ"
-    hdr["CUNIT3"] = "Hz"
+    hdr["CTYPE3"] = spectype
+    hdr["CUNIT3"] = specunit
     hdr["CRVAL3"] = faxis[0]
     hdr["CRPIX3"] = 1.0
     hdr["CDELT3"] = faxis[1] - faxis[0]
@@ -101,12 +103,13 @@ def make_header(
         hdr["VELREF"] = hdr["VELREF"] + 256
     # AIPS memo doesn't say what to do for relativistic velocity definition
 
-    # Set the ALT* axis keywords if possible
-    if hdr["CDELT3"] != 0.0 and restfreq > 0.0:
-        # zero velocity
-        hdr["ALTRVAL"] = 0.0
-        # is at channel here the frequency axis equals the rest frequency
-        hdr["ALTRPIX"] = hdr["CRPIX3"] + (restfreq - hdr["CRVAL3"]) / hdr["CDELT3"]
+    # ALT* keywords are not in the FITS standard.
+#    # Set the ALT* axis keywords if possible
+#    if hdr["CDELT3"] != 0.0 and restfreq > 0.0:
+#        # zero velocity
+#        hdr["ALTRVAL"] = 0.0
+#        # is at channel here the frequency axis equals the rest frequency
+#        hdr["ALTRPIX"] = hdr["CRPIX3"] + (restfreq - hdr["CRVAL3"]) / hdr["CDELT3"]
 
     hdr["RESTFRQ"] = restfreq
 
