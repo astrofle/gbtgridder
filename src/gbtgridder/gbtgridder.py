@@ -780,53 +780,6 @@ def gbtgridder(args):
         phdu = pyfits.PrimaryHDU(weight, wtHdr)
         phdu.writeto(outputFiles["weight"])
 
-    if not args.nocont:
-        if verbose > 3:
-            print("Writing 'cont' image")
-        # "cont" map, sum along the spectral axis
-        # SQUASH does a weighted average
-        # As implemented here, this is equivalent if there are equal weights along the spectral axis
-        # doing a weighted average using numpy.average and ignoring NaNs would be tricky here
-        # some slices may be all NaNs (but an entire cube of NaNs was tested for earlier)
-        # this suppresses that warning
-        with warnings.catch_warnings():
-            warnings.simplefilter("ignore")
-            cont_map = numpy.nanmean(cube,axis=1)
-
-        contHdr = hdr.copy()
-        # AIPS just changes the channel count on the frequency axis, leaving everything else the same
-        contHdr['NAXIS3'] = 1
-        # restore the now-degenerate frequency axis to the shape
-        cont_map.shape = (1,)+cont_map.shape
-        contHdr.add_history('gbtgridder: average of cube along spectral axis')
-        contHdr['DATAMAX'] = numpy.nanmax(cont_map)
-        contHdr['DATAMIN'] = numpy.nanmin(cont_map)
-        phdu = pyfits.PrimaryHDU(cont_map, contHdr)
-        phdu.writeto(outputFiles["cont"])
-
-    if not args.noline:
-        if verbose > 3:
-            print("Writing line image")
-        # "line" map, subtract the along the spectral axis from every plane in the data_cube
-        # replace the 0 channel with the avg
-        # first, find the average over the baseline region
-        n = len(faxis)
-        baseRegion = [int(round(0.04*n)),int(round(0.12*n)),int(round(0.81*n)),int(round(0.89*n))]
-        # construct an index from  these regions
-        baseIndx = numpy.arange(baseRegion[1]-baseRegion[0]+1)+baseRegion[0]
-        baseIndx = numpy.append(baseIndx,numpy.arange(baseRegion[3]-baseRegion[2]+1)+baseRegion[2])
-        # this should probably be a weighted average
-        avg_map = numpy.average(cube[:,baseIndx,:,:],axis=1)
-        cube -= avg_map
-        cube[:,0,:,:] = avg_map
-        hdr['DATAMAX'] = numpy.nanmax(cube)
-        hdr['DATAMIN'] = numpy.nanmin(cube)
-        hdr.add_history('gbtgridder: subtracted an average over baseline region on freq axis')
-        hdr.add_history('gbtgridder: average over channels: %d:%d and %d:%d' % tuple(baseRegion))
-        hdr.add_history('gbtgridder: channel 0 replaced with averages')
-        phdu = pyfits.PrimaryHDU(cube,hdr)
-        phdu.writeto(outputFiles["line"])
-
     return
 
 
