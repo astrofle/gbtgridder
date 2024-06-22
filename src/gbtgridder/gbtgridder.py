@@ -541,7 +541,7 @@ def gbtgridder(args):
     # this is what Adam used:  gauss_fwhm = beam_fwhm/3.0
     # this duplicates the aparm(2)=1.5*cellsize used by AIPS in the default pipeline settings
     # the following is about 0.41*beam_fwhm vs 0.33*beam_fwhm from Adam - so wider
-    gauss_fwhm = (1.5*pix_scale)*2.354/math.sqrt(2.0)
+    gauss_fwhm = 2.0 * np.sqrt(np.log(2.0) / 9) * beam_fwhm
 
     if verbose > 4:
         print("Data summary ...")
