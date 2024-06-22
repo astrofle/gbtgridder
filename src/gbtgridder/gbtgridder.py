@@ -20,6 +20,7 @@
 #       P. O. Box 2
 #       Green Bank, WV 24944-0002 USA
 
+from . import __version__
 from . import gbtgridder_args
 from .make_header import make_header
 from .grid_otf import grid_otf
@@ -37,68 +38,6 @@ import math
 import time
 import warnings
 
-gbtgridderVersion = "1.1"
-
-def read_command_line(argv):
-    """Read options from the command line."""
-    # if no options are set, print help      
-    if len(argv) == 1:                       
-        argv.append("-h")                    
-
-    parser = argparse.ArgumentParser(epilog="gbtgridder version: %s" % gbtgridderVersion)
-    parser.add_argument("-c","--channels", type=str,
-                        help="Optional channel range to use.  "
-                             "'<start>:<end>' counting from 0.")
-    parser.add_argument("-a","--average", type=int,
-                        help="Optionally average channels, keeping only nchan/naverage channels")
-    parser.add_argument("-s","--scans", type=str, 
-                        help="Only use data from these scans.  comma separated list or <start>:<end> range syntax or combination of both")
-    parser.add_argument("-m","--maxtsys", type=float,
-                        help="max Tsys value to use")
-    parser.add_argument("-z","--mintsys", type=float,
-                        help="min Tsys value to use")
-    parser.add_argument("SDFITSfiles", type=str, nargs="+",
-                        help="The calibrated SDFITS files to use.") 
-    parser.add_argument("--clobber", default=False, action="store_true",
-                        help="Overwrites existing output files if set.")
-    parser.add_argument("-k","--kernel", type=str, default="gauss", choices=["gauss","gaussbessel","nearest"],
-                        help="gridding kernel, default is gauss")
-    parser.add_argument("-o","--output", type=str,
-                        help="root output name, instead of source and rest frequency")
-    parser.add_argument('--mapcenter', metavar=('LONG','LAT'), type=float, nargs=2,
-                        help="Map center in longitude and latitude of coordinate type used in data (RA/DEC, Galactic, etc) (degrees)")
-    parser.add_argument('--size', metavar=('X','Y'), type=int, nargs=2,
-                        help="Image X,Y size (pixels)")
-    parser.add_argument('--pixelwidth', type=float, help="Image pixel width on sky (arcsec)")
-    parser.add_argument('--restfreq', type=float, help="Rest frequency (MHz)")
-    parser.add_argument("-p","--proj", type=str, default="SFL", choices=["SFL","TAN"],
-                        help="Projection to use for the spatial axes, default is SFL")
-    parser.add_argument("--clonecube",type=str,
-                        help="A FITS cube to use to set the image size and WCS parameters"
-                        " in the spatial dimensions.  The cube must have the same axes "
-                        " produced here, the spatial axes must be of the same type as "
-                        " found in the data to be gridded, and the projection used in the"
-                        " cube must be either TAN, SFL, or GLS [which is equivalent to SFL]."
-                        " Default is to construct the output cube using values appropriate for"
-                        " gridding all of the input data.  Use of --clonecube overrides any use"
-                        " of --size, --pixelwidth, --mapcenter and --proj arguments.")
-    parser.add_argument("--eqweight",default=False, action="store_true",
-                        help="Set this to use equal data weights for all spectra") 
-    parser.add_argument("--noweight", default=False, action="store_true",
-                        help="Set this to turn off production of the output weight cube")
-    parser.add_argument("--noline", default=False, action="store_true",
-                        help="Set this to turn off prodution of the output line cube")
-    parser.add_argument("--nocont", default=False, action="store_true",
-                        help="Set this to turn off prodution of the output 'cont' image")
-    parser.add_argument("-v","--verbose", type=int, default=4,
-                        help="set the verbosity level-- 0-1:none, "
-                        "2:errors only, 3:+warnings, "
-                        "4(default):+user info, 5:+debug")
-    parser.add_argument("-V","--version", action="version", version="gbtgridder version: %s" % gbtgridderVersion)
-
-    args = parser.parse_args()
-
-    return args
 
 def parse_channels(channelString,verbose=4):
     "Turn a valid channel range into start and end channels"
@@ -414,7 +353,7 @@ def gbtgridder(args):
     # beam_fwhm = (747.6+763.8)/2.0/numpy.median(faxis/1.e9)/3600.
     # This is what idlToSdfits does (next 2 lines of code)
     # telescop diameter, in meters
-    diam = 100.0
+    diam = args.diameter
     beam_fwhm = 1.2 * constants.c * (180.0/constants.pi) / (diam * numpy.median(faxis))
     # the 747.6 and 763.8 values above are equivalent to diam of 99.3 and 97.2 m in this equation, respectively
 
@@ -429,7 +368,7 @@ def gbtgridder(args):
 
     if args.clonecube is not None:
         # use the cloned values
-        cubeInfo = get_cube_info(args.clonecube,verbose=verbose)
+        cubeInfo = get_cube_info(args.clonecube, verbose=verbose)
         if cubeInfo is not None:
             if (cubeInfo["xtype"] != coordType[0]) or \
                     (cubeInfo["ytype"] != coordType[1]) or \
@@ -787,7 +726,7 @@ def main():
     if len(sys.argv) == 1:
         sys.argv.append("-h")
 
-    args = gbtgridder_args.parser_args(sys.argv, gbtgridderVersion)
+    args = gbtgridder_args.parser_args(sys.argv, __version__)
 
     # argument checking
     gbtgridder_args.check_args(args)
