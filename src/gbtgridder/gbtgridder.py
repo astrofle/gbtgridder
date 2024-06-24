@@ -541,7 +541,7 @@ def gbtgridder(args):
     # this is what Adam used:  gauss_fwhm = beam_fwhm/3.0
     # this duplicates the aparm(2)=1.5*cellsize used by AIPS in the default pipeline settings
     # the following is about 0.41*beam_fwhm vs 0.33*beam_fwhm from Adam - so wider
-    gauss_fwhm = 2.0 * np.sqrt(np.log(2.0) / 9) * beam_fwhm
+    gauss_fwhm = 2.0 * numpy.sqrt(numpy.log(2.0) / 9) * beam_fwhm
 
     if verbose > 4:
         print("Data summary ...")
@@ -567,21 +567,21 @@ def gbtgridder(args):
 
         print("")
         print("Map info ...")
-        print("   beam_fwhm : ", beam_fwhm, "(", beam_fwhm*60.0*60.0, " arcsec)")
-        print("   pix_scale : ", pix_scale, "(", pix_scale*60.0*60.0, " arcsec)")
-        print("  gauss fwhm : ", gauss_fwhm, "(", gauss_fwhm*60.0*60.0, " arcsec)")
-        print("    ref Xsky : ", refXsky)
-        print("    ref Ysky : ", refYsky)
-        print(" center Ysky : ", centerYsky)
-        print("       xsize : ", xsize)
-        print("       ysize : ", ysize)
-        print("    ref Xpix : ", refXpix)
-        print("    ref Ypix : ", refYpix)
-        print("          f0 : ", faxis[0])
-        print("    delta(f) : ", faxis[1]-faxis[0])
-        print("      nchan  : ", len(faxis))
-        print("      source : ", source)
-        print(" frest (MHz) : ", frest/1.e6)
+        print(f"  beam_fwhm (deg) :  {beam_fwhm:.4f} ( {beam_fwhm*60.0*60.0:.4f} arcsec )")
+        print(f"  pix_scale (deg) :  {pix_scale:.4f} ( {pix_scale*60.0*60.0:.4f} arcsec )")
+        print(f" gauss fwhm (deg) :  {gauss_fwhm:.4f} ( {gauss_fwhm*60.0*60.0:.4f} arcsec )")
+        print(f"         ref Xsky : ", refXsky)
+        print(f"         ref Ysky : ", refYsky)
+        print(f"      center Ysky : ", centerYsky)
+        print(f"            xsize : ", xsize)
+        print(f"            ysize : ", ysize)
+        print(f"         ref Xpix : ", refXpix)
+        print(f"         ref Ypix : ", refYpix)
+        print(f"               f0 : ", faxis[0])
+        print(f"         delta(f) : ", faxis[1]-faxis[0])
+        print(f"           nchan  : ", len(faxis))
+        print(f"           source : ", source)
+        print(f"      frest (MHz) : ", frest/1.e6)
 
     # build the initial header object
     # only enough to build the WCS object from it + BEAM size info
@@ -670,7 +670,7 @@ def gbtgridder(args):
         hdr['DATAMIN'] = numpy.nanmin(cube)
 
     # note the parameter values - this must be updated as new parameters are added
-    hdr.add_history("gbtgridder version: %s" % gbtgridderVersion)
+    hdr.add_history("gbtgridder version: %s" % __version__)
     if args.channels is not None:
         hdr.add_history("gbtgridder channels: "+args.channels)
     else:
